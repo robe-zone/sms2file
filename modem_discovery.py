@@ -8,6 +8,8 @@ import os, signal
 from os import path
 import time
 
+# Check PID
+# source: https://stackoverflow.com/a/20186516
 def pid_exists(pid): 
     if pid < 0: return False #NOTE: pid == 0 returns True
     try:
@@ -29,6 +31,7 @@ for usb in ttyUSB:
 			f.close()
 			if pid_exists(lckPid):
 				continue
+		# source: https://pyserial.readthedocs.io/en/latest/
 		ser = serial.Serial(usb, 19200, timeout=1)
 		print("Opening %s" % (ser.name))
 		ser.write(b'AT+GSN\r\n')
@@ -37,7 +40,7 @@ for usb in ttyUSB:
 		imei = imeiRegex.search(line.decode("utf-8"))
 		print(imei.group())
 		ser.close()
-		p = subprocess.Popen(['/root/sms2curl/read_modem.py', ser.name, imei.group()])
+		p = subprocess.Popen(['/root/sms2file/read_modem.py', ser.name, imei.group()])
 		f = open("./lock/LCK.."+tty, "w")
 		f.write("%d" % p.pid)
 		f.close()
